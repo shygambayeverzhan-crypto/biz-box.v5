@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Targetologist PRO — SaaS Ecosystem</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { background-color: #090B10; }
+    body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; color: #E2E8F0; overflow-x: hidden; }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .bg-glow {
+      background: radial-gradient(circle at 50% -20%, rgba(124, 58, 237, 0.18), transparent 70%),
+                  radial-gradient(circle at 10% 40%, rgba(59, 130, 246, 0.12), transparent 50%),
+                  radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1), transparent 50%);
+    }
+    .glass-card { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37); }
+    .glass-card-hover { transition: all .3s cubic-bezier(.4,0,.2,1); }
+    .glass-card-hover:hover { border-color: rgba(168,85,247,.3); box-shadow: 0 12px 40px 0 rgba(124,58,237,.2); transform: translateY(-2px); }
+    .glow-purple { box-shadow: 0 0 25px -5px rgba(168,85,247,.4); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #090B10; }
+    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+    .modal-backdrop { background: rgba(4,7,13,.82); backdrop-filter: blur(12px); }
+    @keyframes modalSlideUp { from{opacity:0;transform:scale(.97) translateY(14px);} to{opacity:1;transform:scale(1) translateY(0);} }
+    .animate-modal { animation: modalSlideUp .28s cubic-bezier(.16,1,.3,1) forwards; }
+    img, svg, video { max-width: 100%; }
+    .scroll-x { overflow-x: auto; }
+  </style>
+</head>
+<body class="bg-glow min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+  <header class="sticky top-0 z-40 glass-card border-b border-slate-800/80 px-4 lg:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/30 shrink-0">
+          <i data-lucide="crosshair" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">AI TARGETOLOGIST</span>
+          <p class="text-[11px] text-slate-400">Автоматизация рекламных связок и воронки продаж</p>
+        </div>
+      </div>
+
+      <nav class="flex items-center bg-slate-900/80 p-1.5 rounded-xl border border-slate-800/80 text-xs font-medium scroll-x max-w-full">
+        <button onclick="switchTab('generator')" id="nav-generator" class="nav-btn shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200"><i data-lucide="sparkles" class="w-4 h-4"></i><span>Генератор</span></button>
+        <button onclick="switchTab('analyzer')" id="nav-analyzer" class="nav-btn shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200"><i data-lucide="bar-chart-3" class="w-4 h-4"></i><span>Анализатор</span></button>
+        <button onclick="switchTab('funnels')" id="nav-funnels" class="nav-btn shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200"><i data-lucide="git-fork" class="w-4 h-4"></i><span>Воронки</span></button>
+        <button onclick="switchTab('consultant')" id="nav-consultant" class="nav-btn shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200"><i data-lucide="bot" class="w-4 h-4"></i><span>Консультант</span></button>
+        <button onclick="switchTab('pricing')" id="nav-pricing" class="nav-btn shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200"><i data-lucide="zap" class="w-4 h-4 text-amber-400"></i><span class="text-amber-400 font-semibold">Тарифы</span></button>
+        <button onclick="switchTab('admin')" id="nav-admin" class="nav-btn hidden shrink-0 items-center gap-2 px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200"><i data-lucide="shield-check" class="w-4 h-4 text-rose-400"></i><span class="text-rose-400 font-semibold">Админ</span></button>
+      </nav>
+
+      <div id="user-status-badge" onclick="switchTab('pricing')" class="cursor-pointer glass-card px-3.5 py-2 rounded-xl flex items-center gap-3 border-slate-700/60 hover:border-purple-500/40 transition">
+        <div class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </div>
+        <div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Текущий тариф</div>
+          <div id="current-plan-display" class="text-xs font-bold text-white">FREE TRIAL</div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500"></i>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 w-full flex-grow">
+
+    <div id="server-status-bar" class="mb-4 hidden rounded-xl px-4 py-3 text-xs border flex items-start gap-2.5"></div>
+
+    <div class="mb-6 glass-card p-4 rounded-2xl border-slate-800/80">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-2"><i data-lucide="gauge" class="w-4 h-4 text-purple-400"></i><h3 class="text-xs font-bold tracking-wider text-slate-300 uppercase">Статус лимитов использования</h3></div>
+        <span id="limits-summary-subtitle" class="text-xs text-slate-400">Загрузка...</span>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center text-xs mb-1.5"><span class="text-slate-400">Генератор</span><span id="limit-generator-text" class="font-mono font-bold text-purple-400">3 / 3</span></div>
+          <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="limit-generator-bar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-purple-500 to-indigo-500" style="width:100%"></div></div>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center text-xs mb-1.5"><span class="text-slate-400">Анализатор</span><span id="limit-analyzer-text" class="font-mono font-bold text-cyan-400">3 / 3</span></div>
+          <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="limit-analyzer-bar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-cyan-500 to-blue-500" style="width:100%"></div></div>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center text-xs mb-1.5"><span class="text-slate-400">Воронки</span><span id="limit-funnels-text" class="font-mono font-bold text-emerald-400">3 / 3</span></div>
+          <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="limit-funnels-bar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-500" style="width:100%"></div></div>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center text-xs mb-1.5"><span class="text-slate-400">Консультант</span><span id="limit-consultant-text" class="font-mono font-bold text-amber-400">3 / 3</span></div>
+          <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="limit-consultant-bar" class="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-orange-500" style="width:100%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATOR -->
+    <div id="tab-generator" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 glass-card p-6 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-4"><i data-lucide="wand-2" class="w-5 h-5 text-purple-400"></i><h2 class="text-lg font-bold text-white">Параметры генерации связки</h2></div>
+            <div class="space-y-4">
+              <div><label class="block text-xs font-semibold text-slate-300 mb-1.5">Ниша / Продукт</label><input id="gen-niche" type="text" placeholder="Например: Онлайн-курс по мобилографии" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500"></div>
+              <div><label class="block text-xs font-semibold text-slate-300 mb-1.5">Целевая аудитория</label><input id="gen-target" type="text" placeholder="Например: Девушки 18-35, начинающие блогеры" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500"></div>
+              <div><label class="block text-xs font-semibold text-slate-300 mb-1.5">Гео / Город</label><input id="gen-geo" type="text" value="Казахстан (Алматы / Астана)" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500"></div>
+              <div class="grid grid-cols-2 gap-3">
+                <div><label class="block text-xs font-semibold text-slate-300 mb-1.5">Площадка</label>
+                  <select id="gen-platform" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                    <option value="Instagram / Facebook Ads (Meta)">Instagram / FB</option>
+                    <option value="TikTok Ads">TikTok Ads</option>
+                    <option value="YouTube Shorts">YouTube Shorts</option>
+                  </select>
+                </div>
+                <div><label class="block text-xs font-semibold text-slate-300 mb-1.5">Тональность</label>
+                  <select id="gen-tone" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                    <option value="Вовлекающий, трендовый, на языке аудитории">Трендовый</option>
+                    <option value="Экспертный, прямые продажи через выгоду и цифры">Экспертный</option>
+                    <option value="Дерзкий, через боль и провокацию">Дерзкий / Боли</option>
+                  </select>
+                </div>
+              </div>
+              <div id="gen-funnel-chip" class="hidden items-center gap-2 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2">
+                <i data-lucide="git-fork" class="w-3.5 h-3.5"></i><span>Воронка: <b id="gen-funnel-name"></b></span>
+                <button onclick="clearFunnel()" class="ml-auto text-emerald-400/70 hover:text-emerald-200">✕</button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-800">
+            <button onclick="runGenerator()" id="btn-run-generator" class="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white shadow-lg shadow-purple-600/30 hover:opacity-95 disabled:opacity-40 flex items-center justify-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4"></i><span>Сгенерировать связку</span>
+            </button>
+          </div>
+        </div>
+        <div class="lg:col-span-7 glass-card p-6 rounded-2xl flex flex-col justify-between min-h-[420px]">
+          <div>
+            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3 gap-2">
+              <div class="flex items-center gap-2"><i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i><h2 class="text-lg font-bold text-white">Готовая рекламная связка</h2></div>
+              <span id="gen-status-badge" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 font-mono shrink-0">Ожидание</span>
+            </div>
+            <div id="gen-output" class="text-sm text-slate-300 space-y-4">
+              <div class="text-center py-12 text-slate-500 space-y-2"><i data-lucide="wand-2" class="w-10 h-10 mx-auto stroke-1"></i><p>Заполните параметры слева и нажмите «Сгенерировать связку»</p></div>
+            </div>
+          </div>
+          <div id="gen-actions" class="hidden mt-4 pt-3 border-t border-slate-800 flex justify-end gap-2">
+            <button onclick="copyText('gen-output')" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-medium flex items-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Скопировать</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYZER -->
+    <div id="tab-analyzer" class="tab-content hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 glass-card p-6 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-4"><i data-lucide="search-code" class="w-5 h-5 text-cyan-400"></i><h2 class="text-lg font-bold text-white">Анализ оффера & CTR</h2></div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Введите ваш оффер или рекламный заголовок</label>
+            <textarea id="analyzer-input" rows="7" placeholder="Пример: «Научись снимать трендовые Reels за 3 дня и получи первых 5 клиентов или мы вернем деньги»" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-cyan-500"></textarea>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-800">
+            <button onclick="runAnalyzer()" id="btn-run-analyzer" class="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-600/30 hover:opacity-95 disabled:opacity-40 flex items-center justify-center gap-2">
+              <i data-lucide="cpu" class="w-4 h-4"></i><span>Проанализировать оффер</span>
+            </button>
+          </div>
+        </div>
+        <div class="lg:col-span-7 glass-card p-6 rounded-2xl min-h-[420px]">
+          <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3 gap-2">
+            <div class="flex items-center gap-2"><i data-lucide="pie-chart" class="w-5 h-5 text-blue-400"></i><h2 class="text-lg font-bold text-white">Результат AI-анализа</h2></div>
+            <span id="analyzer-status-badge" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 font-mono shrink-0">Готов</span>
+          </div>
+          <div id="analyzer-output" class="text-sm text-slate-300 space-y-4">
+            <div class="text-center py-12 text-slate-500 space-y-2"><i data-lucide="bar-chart-2" class="w-10 h-10 mx-auto stroke-1"></i><p>Вставьте оффер и запустите оценку конверсионности</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FUNNELS -->
+    <div id="tab-funnels" class="tab-content hidden">
+      <div class="mb-4"><h2 class="text-xl font-bold text-white">Готовые архитектуры воронок</h2><p class="text-xs text-slate-400">Выберите модель — она подставится в Генератор как контекст для AI</p></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="glass-card p-6 rounded-2xl glass-card-hover flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mb-4 text-purple-400"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+            <h3 class="text-base font-bold text-white mb-2">Бесплатный чек-лист</h3>
+            <p class="text-xs text-slate-400 mb-4">Классическая лид-магнит воронка для быстрого сбора базы подписчиков.</p>
+          </div>
+          <button onclick="useFunnel('Бесплатный чек-лист (лид-магнит → благодарность → трипвайр)')" class="w-full py-2.5 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 font-semibold text-xs flex items-center justify-center gap-2">Использовать в генераторе <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <div class="glass-card p-6 rounded-2xl glass-card-hover flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4 text-emerald-400"><i data-lucide="gift" class="w-5 h-5"></i></div>
+            <h3 class="text-base font-bold text-white mb-2">Первый визит + бонус</h3>
+            <p class="text-xs text-slate-400 mb-4">Для локального бизнеса: салоны, рестораны, клиники, автосервисы.</p>
+          </div>
+          <button onclick="useFunnel('Первый визит + бонус (гео-реклама → купон в WhatsApp → напоминание)')" class="w-full py-2.5 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-semibold text-xs flex items-center justify-center gap-2">Использовать в генераторе <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+        <div class="glass-card p-6 rounded-2xl glass-card-hover flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-4 text-amber-400"><i data-lucide="video" class="w-5 h-5"></i></div>
+            <h3 class="text-base font-bold text-white mb-2">UGC-видео + бандл</h3>
+            <p class="text-xs text-slate-400 mb-4">E-commerce и инфопродукты. Нативный контент с предложением комплекта.</p>
+          </div>
+          <button onclick="useFunnel('UGC-видео + бандл (нативное видео → ограниченное предложение → быстрый чекаут)')" class="w-full py-2.5 px-3 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-semibold text-xs flex items-center justify-center gap-2">Использовать в генераторе <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSULTANT -->
+    <div id="tab-consultant" class="tab-content hidden">
+      <div class="glass-card p-6 rounded-2xl flex flex-col h-[600px]">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 gap-2">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div>
+            <div><h3 class="text-sm font-bold text-white">AI Таргетолог Консультант</h3><p class="text-[11px] text-slate-400">Аудитории, бюджеты, креативы, модерация Meta и TikTok</p></div>
+          </div>
+        </div>
+        <div id="chat-box" class="flex-grow overflow-y-auto my-4 space-y-4 pr-2">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400 text-xs font-bold">AI</div>
+            <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] text-xs text-slate-200 leading-relaxed">Привет! Спроси про Meta Ads, TikTok Ads, структуру кампаний, бюджеты или причины отклонения объявлений.</div>
+          </div>
+        </div>
+        <div class="pt-3 border-t border-slate-800 flex gap-2">
+          <input id="chat-input" type="text" placeholder="Задайте вопрос таргетологу..." onkeydown="if(event.key==='Enter') sendChat()" class="flex-grow bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-500">
+          <button onclick="sendChat()" id="btn-send-chat" class="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-950 font-bold text-xs flex items-center gap-2"><span>Отправить</span><i data-lucide="send" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div id="tab-pricing" class="tab-content hidden">
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <h2 class="text-2xl font-black text-white mb-2">Тарифные планы и подписка</h2>
+        <p class="text-xs text-slate-400">Выбирайте уровень под ваши задачи и масштабируйте кампании без ограничений</p>
+        <div id="my-request-status" class="hidden mt-4 inline-flex items-center gap-2 text-xs px-3.5 py-2 rounded-full border"></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div class="glass-card p-6 rounded-2xl border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ознакомительный</div>
+            <h3 class="text-xl font-extrabold text-white mb-1">FREE TRIAL</h3>
+            <div class="text-2xl font-black text-white mb-4">$0 <span class="text-xs font-normal text-slate-400">/ навсегда</span></div>
+            <ul class="text-xs space-y-3 text-slate-300 mb-6">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> 3 запуска Генератора</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> 3 запуска Анализатора</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> 3 запуска Воронок</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> 3 сообщения Консультанту</li>
+            </ul>
+          </div>
+          <button id="btn-plan-free" disabled class="w-full py-3 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs cursor-default">Текущий план</button>
+        </div>
+        <div class="glass-card p-6 rounded-2xl border-purple-500/50 glow-purple relative flex flex-col justify-between">
+          <div class="absolute -top-3 right-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] font-extrabold uppercase px-3 py-1 rounded-full shadow">ХИТ ПРОДАЖ</div>
+          <div>
+            <div class="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">Для специалистов</div>
+            <h3 class="text-xl font-extrabold text-white mb-1">STANDARD PRO</h3>
+            <div class="flex items-baseline gap-2 mb-4 flex-wrap"><span class="text-3xl font-black text-white">$14.9</span><span class="text-xs text-slate-400">/ месяц</span><span class="text-xs line-through text-slate-500 font-mono">$29</span></div>
+            <ul class="text-xs space-y-3 text-slate-300 mb-6">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> <strong>100 AI-генераций</strong> в месяц</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> Фреймворки AIDA / PAS / 4U</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> Матрица настроек Meta & TikTok</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-purple-400"></i> AI-чат без ограничений</li>
+            </ul>
+          </div>
+          <button onclick="openCheckout('PRO', 14.90)" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/40">Оформить Pro</button>
+        </div>
+        <div class="glass-card p-6 rounded-2xl border-amber-500/40 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Для агентств и команд</div>
+            <h3 class="text-xl font-extrabold text-white mb-1">AGENCY VIP</h3>
+            <div class="flex items-baseline gap-2 mb-4 flex-wrap"><span class="text-3xl font-black text-white">$39.9</span><span class="text-xs text-slate-400">/ месяц</span><span class="text-xs line-through text-slate-500 font-mono">$79</span></div>
+            <ul class="text-xs space-y-3 text-slate-300 mb-6">
+              <li class="flex items-center gap-2"><i data-lucide="crown" class="w-4 h-4 text-amber-400"></i> <strong>Безлимитные AI-генерации</strong></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i> Экспорт стратегий</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i> Приоритетная обработка</li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-amber-400"></i> Персональный менеджер</li>
+            </ul>
+          </div>
+          <button onclick="openCheckout('VIP', 39.90)" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20">Выбрать VIP</button>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto mt-6 text-center space-y-1">
+        <p class="text-[11px] text-slate-600">Тариф активирует владелец платформы после подтверждения оплаты.</p>
+        <p class="text-[11px] text-slate-700">Ваш ID устройства (сообщите его нам, если платите переводом и хотите активацию без ожидания): <span id="my-client-id" class="font-mono text-slate-500"></span> <button onclick="copyMyId()" class="underline hover:text-slate-400">копировать</button></p>
+      </div>
+    </div>
+
+    <!-- ADMIN (hidden until unlocked with the server-side code) -->
+    <div id="tab-admin" class="tab-content hidden">
+      <div class="mb-4 flex items-center gap-2"><i data-lucide="shield-check" class="w-5 h-5 text-rose-400"></i><h2 class="text-xl font-bold text-white">Панель подтверждения оплат</h2></div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 glass-card p-6 rounded-2xl">
+          <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="inbox" class="w-4 h-4 text-rose-400"></i> Заявки на подтверждение</h3>
+            <button onclick="loadAdminRequests()" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 hover:text-white">Обновить</button>
+          </div>
+          <div id="admin-requests-list" class="space-y-3"><p class="text-xs text-slate-500 text-center py-8">Загрузка...</p></div>
+        </div>
+        <div class="lg:col-span-5 glass-card p-6 rounded-2xl">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-4"><i data-lucide="user-cog" class="w-4 h-4 text-rose-400"></i> Ручная активация по ID</h3>
+          <p class="text-xs text-slate-400 mb-3">Клиент видит свой ID на вкладке «Тарифы». Если он написал вам напрямую — попросите прислать этот ID.</p>
+          <input id="admin-manual-id" type="text" placeholder="ID устройства клиента" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white mb-3 focus:outline-none focus:border-rose-500 font-mono">
+          <select id="admin-manual-plan" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-3 py-2.5 text-sm text-white mb-3 focus:outline-none focus:border-rose-500">
+            <option value="FREE">FREE TRIAL</option>
+            <option value="PRO" selected>STANDARD PRO</option>
+            <option value="VIP">AGENCY VIP</option>
+          </select>
+          <button onclick="adminManualActivate()" class="w-full py-3 rounded-xl font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white">Активировать тариф</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: LIMIT -->
+  <div id="modal-limit-exhausted" class="fixed inset-0 z-50 hidden modal-backdrop items-center justify-center p-4">
+    <div class="glass-card max-w-lg w-full p-6 rounded-2xl border-purple-500/40 animate-modal relative">
+      <button onclick="closeModal('modal-limit-exhausted')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-purple-400 flex items-center justify-center mx-auto mb-3"><i data-lucide="lock" class="w-6 h-6"></i></div>
+        <h3 class="text-lg font-black text-white">Лимит бесплатных запусков исчерпан</h3>
+        <p class="text-xs text-slate-300 mt-1">Перейдите на платный тариф, чтобы продолжить.</p>
+      </div>
+      <div class="space-y-3 mb-6">
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-purple-500/30 flex items-center justify-between gap-3">
+          <div><div class="text-sm font-bold text-white">Standard Pro</div><div class="text-xs text-purple-400 font-mono">$14.9 / месяц</div></div>
+          <button onclick="openCheckout('PRO', 14.90)" class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shrink-0">Перейти на Pro</button>
+        </div>
+        <div class="bg-slate-900/80 p-4 rounded-xl border border-amber-500/30 flex items-center justify-between gap-3">
+          <div><div class="text-sm font-bold text-white">Agency VIP</div><div class="text-xs text-amber-400 font-mono">$39.9 / месяц</div></div>
+          <button onclick="openCheckout('VIP', 39.90)" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0">Выбрать VIP</button>
+        </div>
+      </div>
+      <div class="text-center"><button onclick="closeModal('modal-limit-exhausted')" class="text-xs text-slate-500 hover:text-slate-300">Закрыть и вернуться</button></div>
+    </div>
+  </div>
+
+  <!-- MODAL: CHECKOUT -->
+  <div id="modal-checkout" class="fixed inset-0 z-50 hidden modal-backdrop items-center justify-center p-4">
+    <div class="glass-card max-w-xl w-full p-6 rounded-2xl border-slate-700 animate-modal relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal('modal-checkout')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+        <div><h3 class="text-lg font-bold text-white">Оплата подписки</h3><p id="checkout-selected-plan-text" class="text-xs text-emerald-400 font-medium"></p></div>
+      </div>
+      <div class="space-y-5">
+        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between"><span class="text-sm font-bold text-white">1. Kaspi Pay</span><span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-mono">Быстро</span></div>
+          <a href="https://pay.kaspi.kz/pay/6hpgsuja" target="_blank" rel="noopener noreferrer" class="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2"><span>Оплатить через Kaspi Pay</span><i data-lucide="external-link" class="w-4 h-4"></i></a>
+        </div>
+        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-3">
+          <div class="text-sm font-bold text-white">2. Прямой перевод на Kaspi</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-slate-950 p-3 rounded-lg border border-slate-800/80">
+            <div><span class="text-slate-500 block text-[10px]">Номер телефона:</span><span class="font-mono text-white font-bold">+7 706 668 08 12</span></div>
+            <div><span class="text-slate-500 block text-[10px]">Получатель:</span><span class="text-white font-bold">Ержан Ш.</span></div>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button onclick="copyPhone()" id="btn-copy-phone" class="flex-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-medium flex items-center justify-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i> Скопировать номер</button>
+            <a href="https://wa.me/77066680812" target="_blank" rel="noopener noreferrer" class="flex-1 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium flex items-center justify-center gap-1.5"><i data-lucide="message-square" class="w-3.5 h-3.5"></i> Чек в WhatsApp</a>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-slate-800">
+          <p class="text-[11px] text-slate-500 mb-2">Тариф активирует владелец платформы вручную после проверки оплаты.</p>
+          <button onclick="submitPaymentRequest()" id="btn-submit-request" class="w-full px-3.5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold disabled:opacity-40">Я оплатил — отправить на подтверждение</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADMIN LOGIN -->
+  <div id="modal-admin-login" class="fixed inset-0 z-50 hidden modal-backdrop items-center justify-center p-4">
+    <div class="glass-card max-w-sm w-full p-6 rounded-2xl border-rose-500/40 animate-modal relative">
+      <button onclick="closeModal('modal-admin-login')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center mx-auto mb-3"><i data-lucide="key-round" class="w-6 h-6"></i></div>
+        <h3 class="text-lg font-black text-white">Вход владельца</h3>
+      </div>
+      <input id="admin-code-input" type="password" placeholder="Код доступа" onkeydown="if(event.key==='Enter') adminLogin()" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-sm text-white mb-3 focus:outline-none focus:border-rose-500">
+      <button onclick="adminLogin()" class="w-full py-3 rounded-xl font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white">Войти</button>
+      <p id="admin-login-error" class="hidden text-xs text-red-400 mt-2 text-center">Неверный код</p>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hidden glass-card px-4 py-2.5 rounded-xl text-xs text-white border-slate-700"></div>
+
+  <footer class="glass-card border-t border-slate-800/80 px-4 py-4 text-center text-xs text-slate-500 mt-12">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <span>© 2026 AI Targetologist PRO. Все права защищены.</span>
+      <button onclick="openModal('modal-admin-login')" class="text-[11px] text-slate-700 hover:text-slate-500">Вход владельца</button>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    "use strict";
+
+    function icons() { try { if (window.lucide && lucide.createIcons) lucide.createIcons(); } catch (e) {} }
+    function el(id) { return document.getElementById(id); }
+    function esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+    function toast(msg) {
+      var t = el("toast"); t.textContent = msg; t.classList.remove("hidden");
+      clearTimeout(t._h); t._h = setTimeout(function(){ t.classList.add("hidden"); }, 2600);
+    }
+    function list(arr) {
+      if (!Array.isArray(arr) || !arr.length) return "";
+      return '<ul class="space-y-1.5 mt-1">' + arr.map(function(x){ return '<li class="flex gap-2 text-xs text-slate-300"><span class="text-slate-600 mt-0.5">•</span><span>' + esc(x) + '</span></li>'; }).join("") + '</ul>';
+    }
+    function card(color, tag, bodyHtml) {
+      return '<div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800"><span class="text-[10px] text-' + color + '-400 font-bold uppercase tracking-wider block mb-1.5">' + tag + '</span>' + bodyHtml + '</div>';
+    }
+    function mdLite(s) { return esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong class="text-white">$1</strong>').replace(/\n/g, "<br>"); }
+
+    /* ---------- visitor id (no login needed for customers) ---------- */
+    var CLIENT_KEY = "at_client_id";
+    var clientId = localStorage.getItem(CLIENT_KEY);
+    if (!clientId) {
+      clientId = (crypto.randomUUID ? crypto.randomUUID() : "c_" + Date.now() + "_" + Math.random().toString(36).slice(2));
+      try { localStorage.setItem(CLIENT_KEY, clientId); } catch (e) {}
+    }
+
+    function api(path, opts) {
+      opts = opts || {};
+      var headers = Object.assign({ "Content-Type": "application/json", "X-Client-Id": clientId }, opts.headers || {});
+      return fetch(path, Object.assign({}, opts, { headers: headers }))
+        .then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (body) {
+            if (!res.ok) { var err = new Error(body.error || "request_failed"); err.status = res.status; err.body = body; throw err; }
+            return body;
+          });
+        });
+    }
+
+    /* ---------- state ---------- */
+    var state = { plan: "FREE", usage: { generator:0, analyzer:0, funnels:0, consultant:0 }, proUsed: 0 };
+    var TOOLS = ["generator","analyzer","funnels","consultant"];
+    var BAR_COLORS = { generator:"bg-gradient-to-r from-purple-500 to-indigo-500", analyzer:"bg-gradient-to-r from-cyan-500 to-blue-500", funnels:"bg-gradient-to-r from-emerald-500 to-teal-500", consultant:"bg-gradient-to-r from-amber-500 to-orange-500" };
+
+    function renderLimits() {
+      var planEl = el("current-plan-display");
+      planEl.innerHTML = state.plan === "FREE" ? "FREE TRIAL" : state.plan === "PRO" ? '<span class="text-purple-400 font-bold">STANDARD PRO</span>' : '<span class="text-amber-400 font-bold">AGENCY VIP</span>';
+      TOOLS.forEach(function (tool) {
+        var txt = el("limit-" + tool + "-text"), bar = el("limit-" + tool + "-bar");
+        var pct = 100, label = "UNLIMITED", cls = BAR_COLORS[tool];
+        if (state.plan === "FREE") {
+          var left = Math.max(0, 3 - (state.usage[tool] || 0));
+          label = left + " / 3"; pct = (left/3)*100; if (left === 0) cls = "bg-red-500";
+        } else if (state.plan === "PRO") {
+          var leftPro = Math.max(0, 100 - state.proUsed);
+          label = leftPro + " / 100"; pct = leftPro; if (leftPro === 0) cls = "bg-red-500";
+        }
+        txt.textContent = label; bar.className = "h-full rounded-full transition-all duration-500 " + cls; bar.style.width = pct + "%";
+      });
+      el("limits-summary-subtitle").textContent = state.plan === "FREE" ? "Free Trial: по 3 запуска на инструмент (сохраняется на сервере)" : state.plan === "PRO" ? "Standard Pro: 100 AI-генераций в месяц" : "Agency VIP: безлимитные генерации";
+      icons();
+    }
+
+    function canRun(tool) {
+      if (state.plan === "VIP") return true;
+      if (state.plan === "PRO") { if (state.proUsed >= 100) { openModal("modal-limit-exhausted"); return false; } return true; }
+      if ((state.usage[tool]||0) >= 3) { openModal("modal-limit-exhausted"); return false; }
+      return true;
+    }
+
+    async function refreshStatus() {
+      try {
+        var data = await api("/api/my-status");
+        state.plan = data.plan; state.usage = data.usage; state.proUsed = data.proUsed;
+        renderLimits();
+        renderMyRequestStatus(data.lastRequest);
+        setServerBanner("ok", "Подключено к серверу. Тариф и лимиты сохраняются постоянно.");
+      } catch (e) {
+        setServerBanner("err", "Не удалось связаться с сервером (" + esc(e.message) + "). Проверьте, что backend запущен и адрес указан верно.");
+      }
+    }
+
+    function setServerBanner(kind, text) {
+      var bar = el("server-status-bar"); bar.classList.remove("hidden");
+      var styles = { ok:"bg-emerald-500/10 border-emerald-500/30 text-emerald-300", warn:"bg-amber-500/10 border-amber-500/30 text-amber-300", err:"bg-red-500/10 border-red-500/30 text-red-300" };
+      bar.className = "mb-4 rounded-xl px-4 py-3 text-xs border flex items-start gap-2.5 " + styles[kind];
+      bar.innerHTML = '<span class="mt-0.5">' + (kind==="ok"?"💾":kind==="warn"?"⚠️":"⛔") + "</span><span>" + text + "</span>";
+    }
+
+    function renderMyRequestStatus(req) {
+      var box = el("my-request-status");
+      if (!req) { box.classList.add("hidden"); return; }
+      box.classList.remove("hidden");
+      var planName = req.plan === "VIP" ? "Agency VIP" : "Standard Pro";
+      if (req.status === "pending") { box.className = "mt-4 inline-flex items-center gap-2 text-xs px-3.5 py-2 rounded-full border bg-amber-500/10 border-amber-500/30 text-amber-300"; box.innerHTML = '<i data-lucide="clock" class="w-3.5 h-3.5"></i> Заявка на ' + esc(planName) + ' ожидает подтверждения'; }
+      else if (req.status === "confirmed") { box.className = "mt-4 inline-flex items-center gap-2 text-xs px-3.5 py-2 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300"; box.innerHTML = '<i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Оплата подтверждена, ' + esc(planName) + ' активирован'; }
+      else { box.className = "mt-4 inline-flex items-center gap-2 text-xs px-3.5 py-2 rounded-full border bg-red-500/10 border-red-500/30 text-red-300"; box.innerHTML = '<i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Заявка отклонена — свяжитесь с поддержкой'; }
+      icons();
+    }
+
+    /* ---------- tabs / modals ---------- */
+    function switchTab(id) {
+      document.querySelectorAll(".tab-content").forEach(function(t){ t.classList.add("hidden"); });
+      document.querySelectorAll(".nav-btn").forEach(function(b){ b.classList.remove("text-purple-400","bg-purple-500/10","border","border-purple-500/20"); b.classList.add("text-slate-400"); });
+      var tab = el("tab-" + id); if (tab) tab.classList.remove("hidden");
+      var nav = el("nav-" + id); if (nav) { nav.classList.remove("text-slate-400"); nav.classList.add("text-purple-400","bg-purple-500/10","border","border-purple-500/20"); }
+      if (id === "admin") loadAdminRequests();
+    }
+    window.switchTab = switchTab;
+    function openModal(id) { var m = el(id); m.classList.remove("hidden"); m.classList.add("flex"); icons(); }
+    function closeModal(id) { var m = el(id); m.classList.add("hidden"); m.classList.remove("flex"); }
+    window.openModal = openModal; window.closeModal = closeModal;
+
+    /* ---------- funnel context ---------- */
+    var activeFunnel = null;
+    function useFunnel(name) {
+      if (!canRun("funnels")) return;
+      bumpLocalUsage("funnels");
+      activeFunnel = name;
+      switchTab("generator");
+      el("gen-funnel-chip").classList.remove("hidden"); el("gen-funnel-chip").classList.add("flex");
+      el("gen-funnel-name").textContent = name;
+      icons(); toast("Воронка подключена к генератору");
+    }
+    function clearFunnel() { activeFunnel = null; el("gen-funnel-chip").classList.add("hidden"); el("gen-funnel-chip").classList.remove("flex"); }
+    window.useFunnel = useFunnel; window.clearFunnel = clearFunnel;
+
+    function bumpLocalUsage(tool) {
+      // optimistic UI bump; the server is the source of truth and refreshStatus() reconciles it
+      if (state.plan === "VIP") return;
+      if (state.plan === "PRO") state.proUsed += 1; else state.usage[tool] = (state.usage[tool]||0) + 1;
+      renderLimits();
+    }
+
+    /* ---------- GENERATOR ---------- */
+    function renderGenerator(d) {
+      var a = d.audience || {};
+      var html = '<div class="space-y-3 animate-modal">';
+      html += card("purple", "🔥 Главный оффер" + (d.framework ? " (" + esc(d.framework) + ")" : ""), '<p class="text-sm text-white font-semibold leading-snug">' + esc(d.offer) + "</p>");
+      if (Array.isArray(d.headlines) && d.headlines.length) html += card("fuchsia", "✍️ Варианты заголовков для теста", list(d.headlines));
+      html += card("indigo", "🎬 Сценарий видео-креатива",
+        '<p class="text-xs text-slate-300 mb-2"><strong class="text-white">Хук (0–3 сек):</strong> ' + esc(d.hook) + "</p>" +
+        '<p class="text-xs text-slate-300 mb-2"><strong class="text-white">Основная часть:</strong> ' + esc(d.body) + "</p>" +
+        '<p class="text-xs text-slate-300"><strong class="text-white">Призыв к действию:</strong> ' + esc(d.cta) + "</p>");
+      html += card("cyan", "🎯 Настройки кампании",
+        '<p class="text-xs text-slate-300 mb-1"><strong class="text-white">Интересы:</strong> ' + esc((a.interests||[]).join(", ")) + "</p>" +
+        '<p class="text-xs text-slate-300 mb-1"><strong class="text-white">Возраст:</strong> ' + esc(a.age||"—") + ' &nbsp;|&nbsp; <strong class="text-white">Гео:</strong> ' + esc(a.geo||"—") + "</p>" +
+        '<p class="text-xs text-slate-300"><strong class="text-white">Плейсменты:</strong> ' + esc(a.placements||"—") + "</p>");
+      if (d.budget || d.kpi) html += card("emerald", "📈 Бюджет и метрики", (d.budget?'<p class="text-xs text-slate-300 mb-1"><strong class="text-white">Старт:</strong> '+esc(d.budget)+"</p>":"") + (d.kpi?'<p class="text-xs text-slate-300"><strong class="text-white">KPI:</strong> '+esc(d.kpi)+"</p>":""));
+      html += "</div>";
+      el("gen-output").innerHTML = html; el("gen-actions").classList.remove("hidden"); icons();
+    }
+
+    async function runGenerator() {
+      if (!canRun("generator")) return;
+      var body = {
+        niche: el("gen-niche").value.trim(), target: el("gen-target").value.trim(),
+        geo: el("gen-geo").value.trim(), platform: el("gen-platform").value,
+        tone: el("gen-tone").value, funnel: activeFunnel
+      };
+      el("gen-status-badge").textContent = "AI думает..."; el("gen-status-badge").className = "text-xs px-2.5 py-1 rounded-full font-mono shrink-0 bg-purple-500/20 text-purple-300 animate-pulse";
+      el("gen-output").innerHTML = '<div class="flex flex-col items-center justify-center py-14 space-y-3"><div class="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div><p class="text-xs text-purple-400 font-mono">Генерация оффера и креатива...</p></div>';
+      el("gen-actions").classList.add("hidden"); el("btn-run-generator").disabled = true;
+      try {
+        var data = await api("/api/generate", { method:"POST", body: JSON.stringify(body) });
+        bumpLocalUsage("generator");
+        el("gen-status-badge").textContent = "Связка готова"; el("gen-status-badge").className = "text-xs px-2.5 py-1 rounded-full font-mono shrink-0 bg-emerald-500/20 text-emerald-400";
+        renderGenerator(data);
+      } catch (e) {
+        el("gen-status-badge").textContent = "Ошибка"; el("gen-status-badge").className = "text-xs px-2.5 py-1 rounded-full font-mono shrink-0 bg-red-500/20 text-red-300";
+        if (e.status === 402) { openModal("modal-limit-exhausted"); el("gen-output").innerHTML = '<p class="text-xs text-slate-500 py-10 text-center">Лимит исчерпан.</p>'; }
+        else el("gen-output").innerHTML = '<div class="py-10 text-center text-xs text-red-300">' + esc(e.message) + "</div>";
+      } finally { el("btn-run-generator").disabled = false; }
+    }
+    window.runGenerator = runGenerator;
+
+    /* ---------- ANALYZER ---------- */
+    function renderAnalyzer(d) {
+      var score = Math.max(0, Math.min(100, Number(d.score)||0));
+      var tone = score>=75?"emerald":score>=50?"amber":"red";
+      var html = '<div class="space-y-3 animate-modal">';
+      html += '<div class="flex items-center justify-between bg-slate-900/90 p-4 rounded-xl border border-slate-800 gap-3"><div><span class="text-[10px] text-slate-400 uppercase font-bold">Прогнозируемый CTR</span><div class="text-2xl font-black text-'+tone+'-400 font-mono">'+esc(d.ctr||"—")+'</div><div class="text-[11px] text-slate-500">'+esc(d.ctrLevel||"")+'</div></div><div class="text-right"><span class="text-[10px] text-slate-400 uppercase font-bold">Сила оффера</span><div class="text-2xl font-extrabold text-cyan-400 font-mono">'+score+' <span class="text-xs text-slate-500">/100</span></div></div></div>';
+      html += '<div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-'+tone+'-500 to-'+tone+'-400" style="width:'+score+'%"></div></div>';
+      if (d.strengths) html += card("emerald", "✅ Сильные стороны", list(d.strengths));
+      if (d.weaknesses) html += card("amber", "⚠️ Слабые места", list(d.weaknesses));
+      if (d.rewrite) html += card("purple", "💡 Усиленные варианты оффера", list(d.rewrite));
+      html += "</div>";
+      el("analyzer-output").innerHTML = html; icons();
+    }
+
+    async function runAnalyzer() {
+      var offer = el("analyzer-input").value.trim();
+      if (!offer) { toast("Введите ваш оффер"); return; }
+      if (!canRun("analyzer")) return;
+      el("analyzer-status-badge").textContent = "Анализ..."; el("analyzer-status-badge").className = "text-xs px-2.5 py-1 rounded-full font-mono shrink-0 bg-cyan-500/20 text-cyan-300 animate-pulse";
+      el("analyzer-output").innerHTML = '<div class="flex flex-col items-center justify-center py-14 space-y-3"><div class="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div><p class="text-xs text-cyan-400 font-mono">Расчет CTR и поиск слабых мест...</p></div>';
+      el("btn-run-analyzer").disabled = true;
+      try {
+        var data = await api("/api/analyze", { method:"POST", body: JSON.stringify({ offer: offer }) });
+        bumpLocalUsage("analyzer");
+        el("analyzer-status-badge").textContent = "Анализ завершен"; el("analyzer-status-badge").className = "text-xs px-2.5 py-1 rounded-full font-mono shrink-0 bg-emerald-500/20 text-emerald-400";
+        renderAnalyzer(data);
+      } catch (e) {
+        el("analyzer-status-badge").textContent = "Ошибка"; el("analyzer-status-badge").className = "text-xs px-2.5 py-1 rounded-full font-mono shrink-0 bg-red-500/20 text-red-300";
+        if (e.status === 402) { openModal("modal-limit-exhausted"); el("analyzer-output").innerHTML = '<p class="text-xs text-slate-500 py-10 text-center">Лимит исчерпан.</p>'; }
+        else el("analyzer-output").innerHTML = '<div class="py-10 text-center text-xs text-red-300">' + esc(e.message) + "</div>";
+      } finally { el("btn-run-analyzer").disabled = false; }
+    }
+    window.runAnalyzer = runAnalyzer;
+
+    /* ---------- CONSULTANT ---------- */
+    var turns = [];
+    function bubbleUser(text) {
+      var d = document.createElement("div"); d.className = "flex gap-3 justify-end";
+      d.innerHTML = '<div class="bg-purple-600/90 p-3.5 rounded-2xl rounded-tr-none max-w-[85%] text-xs text-white leading-relaxed"></div>';
+      d.firstChild.textContent = text; el("chat-box").appendChild(d);
+    }
+    function bubbleAi() {
+      var d = document.createElement("div"); d.className = "flex gap-3 animate-modal";
+      d.innerHTML = '<div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400 text-xs font-bold">AI</div><div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl rounded-tl-none max-w-[85%] text-xs text-slate-200 leading-relaxed">Думаю...</div>';
+      el("chat-box").appendChild(d); return d.lastChild;
+    }
+    function scrollChat() { var c = el("chat-box"); c.scrollTop = c.scrollHeight; }
+
+    async function sendChat() {
+      var input = el("chat-input"); var msg = input.value.trim();
+      if (!msg) return;
+      if (!canRun("consultant")) return;
+      input.value = ""; bubbleUser(msg); scrollChat();
+      var target = bubbleAi(); scrollChat();
+      el("btn-send-chat").disabled = true;
+      turns.push({ role:"user", content: msg });
+      try {
+        var res = await api("/api/chat", { method:"POST", body: JSON.stringify({ turns: turns }) });
+        bumpLocalUsage("consultant");
+        target.innerHTML = mdLite(res.text);
+        turns.push({ role:"assistant", content: res.text });
+        if (turns.length > 12) turns = turns.slice(-12);
+      } catch (e) {
+        if (e.status === 402) { target.innerHTML = '<span class="text-red-300">Лимит сообщений исчерпан.</span>'; openModal("modal-limit-exhausted"); }
+        else target.innerHTML = '<span class="text-red-300">' + esc(e.message) + '</span>';
+        turns.pop();
+      } finally { el("btn-send-chat").disabled = false; scrollChat(); }
+    }
+    window.sendChat = sendChat;
+
+    /* ---------- checkout ---------- */
+    var activeCheckout = null;
+    function openCheckout(plan, price) {
+      closeModal("modal-limit-exhausted");
+      activeCheckout = { plan: plan, price: price };
+      el("checkout-selected-plan-text").textContent = "Выбран тариф: " + (plan==="PRO"?"Standard Pro":"Agency VIP") + " ($" + price.toFixed(2) + " / месяц)";
+      el("btn-submit-request").disabled = false; el("btn-submit-request").textContent = "Я оплатил — отправить на подтверждение";
+      openModal("modal-checkout");
+    }
+    window.openCheckout = openCheckout;
+
+    async function submitPaymentRequest() {
+      if (!activeCheckout) return;
+      var btn = el("btn-submit-request"); btn.disabled = true; btn.textContent = "Отправка...";
+      try {
+        await api("/api/payment-requests", { method:"POST", body: JSON.stringify(activeCheckout) });
+        closeModal("modal-checkout");
+        toast("Заявка отправлена. Владелец подтвердит оплату и активирует тариф");
+        refreshStatus();
+      } catch (e) {
+        btn.disabled = false; btn.textContent = "Я оплатил — отправить на подтверждение";
+        toast("Не удалось отправить заявку: " + e.message);
+      }
+    }
+    window.submitPaymentRequest = submitPaymentRequest;
+
+    function copyPhone() {
+      var btn = el("btn-copy-phone");
+      navigator.clipboard.writeText("+77066680812").then(function(){
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Номер скопирован'; icons();
+        setTimeout(function(){ btn.innerHTML = '<i data-lucide="copy" class="w-3.5 h-3.5"></i> Скопировать номер'; icons(); }, 2000);
+      });
+    }
+    function copyText(id) { navigator.clipboard.writeText(el(id).innerText).then(function(){ toast("Скопировано"); }); }
+    function copyMyId() { navigator.clipboard.writeText(clientId).then(function(){ toast("ID скопирован"); }); }
+    window.copyPhone = copyPhone; window.copyText = copyText; window.copyMyId = copyMyId;
+
+    /* ---------- admin (server-side code check) ---------- */
+    var ADMIN_CODE_KEY = "at_admin_code";
+    var adminCode = sessionStorage.getItem(ADMIN_CODE_KEY);
+
+    async function adminLogin() {
+      var code = el("admin-code-input").value;
+      try {
+        await fetch("/api/admin/login", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ code: code }) })
+          .then(function(r){ if (!r.ok) throw new Error("bad"); return r.json(); });
+        adminCode = code;
+        sessionStorage.setItem(ADMIN_CODE_KEY, code);
+        el("admin-login-error").classList.add("hidden");
+        closeModal("modal-admin-login");
+        el("nav-admin").classList.remove("hidden"); el("nav-admin").classList.add("flex");
+        switchTab("admin");
+        toast("Вход выполнен");
+      } catch (e) {
+        el("admin-login-error").classList.remove("hidden");
+      }
+    }
+    window.adminLogin = adminLogin;
+
+    function adminApi(path, opts) {
+      opts = opts || {};
+      var headers = Object.assign({ "Content-Type": "application/json", "X-Admin-Code": adminCode || "" }, opts.headers || {});
+      return fetch(path, Object.assign({}, opts, { headers: headers })).then(function(res){
+        return res.json().catch(function(){return {};}).then(function(body){
+          if (!res.ok) { var err = new Error(body.error || "request_failed"); err.status = res.status; throw err; }
+          return body;
+        });
+      });
+    }
+
+    async function loadAdminRequests() {
+      if (!adminCode) return;
+      el("admin-requests-list").innerHTML = '<p class="text-xs text-slate-500 text-center py-8">Загрузка...</p>';
+      try {
+        var rows = await adminApi("/api/admin/requests");
+        if (!rows.length) { el("admin-requests-list").innerHTML = '<p class="text-xs text-slate-500 text-center py-8">Новых заявок нет</p>'; return; }
+        el("admin-requests-list").innerHTML = rows.map(function (r) {
+          var planName = r.plan === "VIP" ? "Agency VIP" : "Standard Pro";
+          var when = r.created_at ? new Date(r.created_at).toLocaleString("ru-RU") : "";
+          var actions = r.status === "pending"
+            ? '<button data-id="'+esc(r.id)+'" data-action="confirm" class="admin-req-btn px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">Подтвердить</button>' +
+              '<button data-id="'+esc(r.id)+'" data-action="reject" class="admin-req-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Отклонить</button>'
+            : '<span class="text-[11px] px-2.5 py-1 rounded-full ' + (r.status==="confirmed"?"bg-emerald-500/20 text-emerald-300":"bg-red-500/20 text-red-300") + '">' + (r.status==="confirmed"?"Подтверждено":"Отклонено") + '</span>';
+          return '<div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 flex items-center justify-between gap-3">' +
+            '<div class="min-w-0"><div class="text-xs text-slate-500 font-mono truncate" title="'+esc(r.client_id)+'">ID: '+esc(r.client_id.slice(0,10))+'…</div>' +
+            '<div class="text-xs text-rose-300 font-mono">'+esc(planName)+' · $'+esc(String(r.price||""))+'</div>' +
+            '<div class="text-[10px] text-slate-500">'+esc(when)+'</div></div>' +
+            '<div class="flex gap-1.5 shrink-0">'+actions+'</div></div>';
+        }).join("");
+        el("admin-requests-list").querySelectorAll(".admin-req-btn").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var id = btn.getAttribute("data-id"), action = btn.getAttribute("data-action");
+            (action === "confirm" ? confirmRequest(id) : rejectRequest(id));
+          });
+        });
+        icons();
+      } catch (e) {
+        el("admin-requests-list").innerHTML = '<p class="text-xs text-red-300 text-center py-8">' + esc(e.message) + '</p>';
+      }
+    }
+    window.loadAdminRequests = loadAdminRequests;
+
+    async function confirmRequest(id) {
+      try { await adminApi("/api/admin/requests/" + id + "/confirm", { method:"POST" }); toast("Тариф активирован"); loadAdminRequests(); }
+      catch (e) { toast("Ошибка: " + e.message); }
+    }
+    async function rejectRequest(id) {
+      try { await adminApi("/api/admin/requests/" + id + "/reject", { method:"POST" }); toast("Заявка отклонена"); loadAdminRequests(); }
+      catch (e) { toast("Ошибка: " + e.message); }
+    }
+
+    async function adminManualActivate() {
+      var id = el("admin-manual-id").value.trim();
+      var plan = el("admin-manual-plan").value;
+      if (!id) { toast("Введите ID клиента"); return; }
+      try { await adminApi("/api/admin/manual-activate", { method:"POST", body: JSON.stringify({ clientId: id, plan: plan }) }); toast("Тариф " + plan + " активирован"); el("admin-manual-id").value = ""; }
+      catch (e) { toast("Ошибка: " + e.message); }
+    }
+    window.adminManualActivate = adminManualActivate;
+
+    /* ---------- boot ---------- */
+    function boot() {
+      el("my-client-id").textContent = clientId;
+      switchTab("generator");
+      renderLimits();
+      refreshStatus();
+      if (adminCode) { el("nav-admin").classList.remove("hidden"); el("nav-admin").classList.add("flex"); }
+      icons();
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+    window.addEventListener("load", icons);
+  })();
+  </script>
+</body>
+</html>
